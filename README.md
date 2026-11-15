@@ -164,11 +164,11 @@ Inside it: `config.json` (API key, mode 0600), `tokens/` (Garmin session),
 `logs/engine-python.log` (version banner, exceptions, native-crash stack
 dumps), `window-state.json`. Exports default to `Documents/LetsRunFaster`.
 
-When the engine stops unexpectedly, the dialog shows the exit code plus the
-last lines the engine wrote, with buttons to copy that text, open the log
-folder, or restart. A stack dump in `engine-python.log` means native code
-crashed; a log that simply stops with no traceback means the process was
-killed externally.
+When the engine stops unexpectedly, the dialog shows the exit code, the last
+lines the engine wrote, and the tail of `engine-python.log` (which is where a
+native crash dump lands), with buttons to copy that text, open the log folder,
+or restart. If the log simply stops, `lrf-ingestor.exe diagnose` in a terminal
+runs each network step separately and logs which one kills the process.
 
 ## Security posture
 

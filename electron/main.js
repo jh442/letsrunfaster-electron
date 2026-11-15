@@ -226,8 +226,25 @@ async function showStartupFailure(error) {
   return undefined;
 }
 
+function readTail(file, maxChars = 1600) {
+  try {
+    const text = fs.readFileSync(file, 'utf8');
+    return text.length > maxChars ? text.slice(-maxChars) : text;
+  } catch {
+    // Missing or unreadable log: the dialog still shows the stderr tail.
+    return '';
+  }
+}
+
 function formatCrashDetail(detail) {
-  return crashReport.formatCrashDetail({ ...detail, logDir: LOG_DIR, path });
+  return crashReport.formatCrashDetail({
+    ...detail,
+    // The engine's own log holds faulthandler dumps, which never touch
+    // stderr; showing only stderr made the last crash look reasonless.
+    pythonLogTail: readTail(path.join(LOG_DIR, 'engine-python.log')),
+    logDir: LOG_DIR,
+    path,
+  });
 }
 
 async function handleEngineCrash(detail) {
