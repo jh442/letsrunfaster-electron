@@ -1,0 +1,47 @@
+appId: com.letsrunfaster.ingestor
+productName: LetsRunFaster Ingestor
+artifactName: LetsRunFaster-Ingestor-${version}-${os}-${arch}.${ext}
+copyright: Copyright © 2026 LetsRunFaster
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - electron/**/*
+  - package.json
+
+# The Python engine is a separate binary, not a Node module: hand it to the
+# app unpacked so it keeps its executable bit and can be spawned.
+extraResources:
+  - from: resources/bin
+    to: bin
+
+asar: true
+compression: normal
+npmRebuild: false
+
+mac:
+  category: public.app-category.healthcare-fitness
+  darkModeSupport: true
+  target:
+    - dmg
+    - zip
+
+win:
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  # Never delete the engine's data directory: it holds the Garmin session
+  # tokens and the saved LetsRunFaster API key.
+  deleteAppDataOnUninstall: false
+
+linux:
+  target:
+    - AppImage
+  category: Utility
+  synopsis: Import Garmin activities into LetsRunFaster

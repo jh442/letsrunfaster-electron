@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <title>LetsRunFaster Ingestor</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      background: #0b0e14;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    .wrap { display: grid; justify-items: center; gap: 18px; }
+    .wordmark {
+      font-size: 20px; font-weight: 900; letter-spacing: -0.03em;
+      font-style: italic; color: #fff;
+    }
+    .wordmark span { color: #f97316; }
+    .label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #94a3b8;
+    }
+    .track {
+      width: 132px; height: 2px; border-radius: 999px;
+      background: #1e293b; overflow: hidden; position: relative;
+    }
+    .track::after {
+      content: ""; position: absolute; inset: 0; width: 40%;
+      border-radius: 999px; background: #38bdf8;
+      animation: slide 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .track::after { animation-duration: 3s; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="wordmark">LETS<span>RUN</span>FASTER</div>
+    <div class="track" role="progressbar" aria-label="Starting"></div>
+    <div class="label">Starting engine</div>
+  </div>
+</body>
+</html>

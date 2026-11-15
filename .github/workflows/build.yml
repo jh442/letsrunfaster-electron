@@ -1,0 +1,79 @@
+name: Build desktop installers
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+          # Native arm64 installer for Windows on ARM (Snapdragon X, etc.).
+          # electron-builder runs natively on the arm runner and fetch-engine
+          # picks win32-arm64, so the app and the engine match.
+          - os: windows-11-arm
+            platform: win
+            arch_flag: --arm64
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    env:
+      # No signing certificates in CI yet; without this electron-builder
+      # spends time hunting the keychain and prints scary (harmless) errors.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Fetch pinned engine binary
+        run: npm run fetch-engine
+
+      - name: Build installer
+        run: npm run dist -- --${{ matrix.platform }} ${{ matrix.arch_flag }} --publish never
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # Two Windows jobs run in parallel; keep their artifacts distinct.
+          name: LetsRunFaster-Ingestor-${{ matrix.os }}
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installers/**/*
+          generate_release_notes: true

@@ -1,0 +1,13 @@
+# Dependencies & build output
+node_modules/
+release/
+dist/
+out/
+
+# Downloaded engine binaries (fetched by `npm run fetch-engine`)
+resources/bin/*
+!resources/bin/.gitkeep
+
+# Local logs / state
+*.log
+.env

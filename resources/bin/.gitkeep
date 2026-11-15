@@ -1,0 +1,3 @@
+Engine binaries are downloaded into this folder by `npm run fetch-engine`
+(and by CI). They are not committed: they come from a pinned GitHub release
+and are verified against that release's SHA256SUMS.txt.
