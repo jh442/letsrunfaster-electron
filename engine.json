@@ -1,6 +1,6 @@
 {
   "//": "Pinned engine release this shell ships. Bump after tagging a letsrunfaster-ingestor release that includes the LRF_READY handshake (launcher: ui --no-browser --port 0).",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repo": "jh442/letsrunfaster-ingestor",
   "assets": {
     "darwin-arm64": "LrfIngestor-macos-arm64",

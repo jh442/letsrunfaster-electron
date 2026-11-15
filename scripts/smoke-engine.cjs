@@ -86,9 +86,27 @@ function check(condition, message) {
 
     const log = fs.readFileSync(path.join(logDir, 'engine.log'), 'utf8');
     check(log.includes('LRF_READY'), 'engine log did not capture the handshake');
+
+    // The engine's own log is what a user is asked for when something goes
+    // wrong, so a build that cannot write it is broken even if it serves.
+    const diagnosticsLog = path.join(dataDir, 'logs', 'engine-python.log');
+    check(fs.existsSync(diagnosticsLog), `no engine diagnostics log at ${diagnosticsLog}`);
+    const diagnosticsText = fs.readFileSync(diagnosticsLog, 'utf8');
+    check(
+      /engine startup version=\d+\.\d+\.\d+/.test(diagnosticsText),
+      'engine diagnostics log has no startup banner',
+    );
+    check(
+      /engine deps garminconnect=/.test(diagnosticsText),
+      'engine diagnostics log has no dependency banner',
+    );
+    console.log(`diag:   ${diagnosticsLog}`);
     console.log('stop:   clean');
     console.log('\nsmoke test passed');
   } finally {
+    // A failed check must not leave a stray engine holding the port and the
+    // binary locked (which also breaks the next build's copy step).
+    await engine.stop().catch(() => {});
     fs.rmSync(workDir, { recursive: true, force: true });
   }
 })().catch((err) => {

@@ -160,8 +160,15 @@ downloaded from the pinned release and checksum-verified, never committed.
 | Linux | `~/.config/LetsRunFaster Ingestor` |
 
 Inside it: `config.json` (API key, mode 0600), `tokens/` (Garmin session),
-`logs/engine.log`, `window-state.json`. Exports default to
-`Documents/LetsRunFaster`.
+`logs/engine.log` (everything the engine printed, including HTTP requests),
+`logs/engine-python.log` (version banner, exceptions, native-crash stack
+dumps), `window-state.json`. Exports default to `Documents/LetsRunFaster`.
+
+When the engine stops unexpectedly, the dialog shows the exit code plus the
+last lines the engine wrote, with buttons to copy that text, open the log
+folder, or restart. A stack dump in `engine-python.log` means native code
+crashed; a log that simply stops with no traceback means the process was
+killed externally.
 
 ## Security posture
 

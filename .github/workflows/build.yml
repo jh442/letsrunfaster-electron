@@ -47,6 +47,12 @@ jobs:
       - name: Fetch pinned engine binary
         run: npm run fetch-engine
 
+      - name: Smoke-test the pinned engine
+        # Runs the real downloaded binary on every target, including Windows
+        # on ARM: this is where a broken engine build shows up before users
+        # see it in an installer.
+        run: npm run smoke
+
       - name: Build installer
         run: npm run dist -- --${{ matrix.platform }} ${{ matrix.arch_flag }} --publish never
 

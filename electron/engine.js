@@ -184,6 +184,10 @@ class Engine {
       const stopping = this.#stopping;
       this.#child = null;
       this.#info = null;
+      // Keep the tail: when the engine dies from native code or is killed
+      // externally, the last lines of stderr are the only evidence, and the
+      // user should not have to find the log file to report it.
+      const tail = stderrTail.slice(-LOG_TAIL_LINES).join('\n').trim();
       log.end();
       if (!wasReady) {
         const detail = stderrTail.slice(-8).join('\n').trim() || 'no output';
@@ -193,7 +197,7 @@ class Engine {
         this.#readyWaiters = null;
         return;
       }
-      if (!stopping) this.onUnexpectedExit({ code, signal });
+      if (!stopping) this.onUnexpectedExit({ code, signal, tail });
     });
 
     return ready;

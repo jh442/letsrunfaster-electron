@@ -8,11 +8,12 @@
  * engine's own server, so the browser and desktop builds can never drift.
  */
 
-const { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, session, shell, screen } = require('electron');
+const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, nativeTheme, session, shell, screen } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const { Engine, resolveEngineBinary } = require('./engine');
+const crashReport = require('./crash');
 
 const APP_ROOT = path.join(__dirname, '..');
 const SPLASH_FILE = path.join(__dirname, 'splash.html');
@@ -161,7 +162,7 @@ async function startEngine() {
     binary,
     dataDir: DATA_DIR,
     logDir: LOG_DIR,
-    onUnexpectedExit: ({ code, signal }) => handleEngineCrash(code, signal),
+    onUnexpectedExit: (detail) => handleEngineCrash(detail),
   });
 
   const info = await engine.start();
@@ -225,22 +226,31 @@ async function showStartupFailure(error) {
   return undefined;
 }
 
-async function handleEngineCrash(code, signal) {
+function formatCrashDetail(detail) {
+  return crashReport.formatCrashDetail({ ...detail, logDir: LOG_DIR, path });
+}
+
+async function handleEngineCrash(detail) {
   if (shuttingDown) return;
+  const text = formatCrashDetail(detail || {});
   const { response } = await dialog.showMessageBox(mainWindow, {
     type: 'error',
     title: 'The local engine stopped',
     message: 'The service that talks to Garmin stopped unexpectedly.',
-    detail: `Exit code: ${code ?? signal ?? 'unknown'}\nLogs: ${LOG_DIR}`,
-    buttons: ['Restart engine', 'Open logs', 'Quit'],
+    detail: text,
+    buttons: ['Restart engine', 'Copy details', 'Open logs', 'Quit'],
     defaultId: 0,
-    cancelId: 2,
+    cancelId: 3,
     noLink: true,
   });
   if (response === 0) return startEngineWithRetry();
   if (response === 1) {
+    clipboard.writeText(text);
+    return handleEngineCrash(detail);
+  }
+  if (response === 2) {
     await shell.openPath(LOG_DIR);
-    return handleEngineCrash(code, signal);
+    return handleEngineCrash(detail);
   }
   app.quit();
   return undefined;
