@@ -14,7 +14,7 @@ and Node into the Python package.
 ```
 Electron main process
   ├─ spawns  lrf-ingestor ui --no-browser --port 0   (bundled binary)
-  ├─ reads   LRF_READY url=http://127.0.0.1:53421 port=53421 version=0.2.0
+  ├─ reads   LRF_READY url=http://127.0.0.1:53421 port=53421 version=0.3.0
   ├─ polls   GET /api/health                        (ok before window loads)
   └─ loads   http://127.0.0.1:<port>/  in a sandboxed window
 ```
